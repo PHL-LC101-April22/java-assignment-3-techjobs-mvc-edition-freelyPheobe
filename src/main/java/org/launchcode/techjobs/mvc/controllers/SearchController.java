@@ -1,8 +1,12 @@
 package org.launchcode.techjobs.mvc.controllers;
 
+import org.launchcode.techjobs.mvc.models.Job;
+import org.launchcode.techjobs.mvc.models.JobData;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 import static org.launchcode.techjobs.mvc.controllers.ListController.columnChoices;
 
@@ -19,14 +23,25 @@ public class SearchController {
         model.addAttribute("columns", columnChoices);
         return "search";
     }
-//<form th:action="@{/search/results}" method = "post">
-//1.The method should also take in two other parameters, specifying the type of search and the search term.
-//   2. In order for these last two parameters to be properly passed in by Spring Boot,
-//    you need to use the correct annotation. Also, you need to name them appropriately, based on the
-//    corresponding form field names defined in search.html.
-    @PostMapping
-    public String displaySearchResults(Model model, @RequestParam String searchType, @RequestParam String searchTerm) {
 
+    @PostMapping(value = "results")
+    public String displaySearchResults(Model model, @RequestParam String searchType, @RequestParam String searchTerm) {
+        ArrayList<Job> jobs;
+
+        if (searchTerm.equals("all")) {
+              jobs = JobData.findAll();
+
+        } else {
+            jobs = JobData.findByColumnAndValue(searchType, searchTerm);
+        }
+        model.addAttribute("jobs", jobs);
+
+        model.addAttribute("columns", ListController.columnChoices);
+
+        model.addAttribute("title", "Jobs with " + ListController.columnChoices.get(searchType) + ": " + searchTerm);
+
+
+        return "search";
     }
     // TODO #3 - Create a handler to process a search request and render the updated search view.
 
